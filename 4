@@ -1,0 +1,34 @@
+def map_reduce_grade_calculation(student_scores):
+    # Mapper: emit (student, score)
+    mapped = []
+    for student, scores in student_scores.items():
+        for score in scores:
+            mapped.append((student, score))
+
+    # Shuffle: group scores by student
+    from collections import defaultdict
+    grouped = defaultdict(list)
+    for student, score in mapped:
+        grouped[student].append(score)
+
+    # Reducer: calculate average for each student
+    student_grades = {}
+    for student, scores in grouped.items():
+        avg = sum(scores) / len(scores)
+        student_grades[student] = round(avg, 2)
+
+    return student_grades
+
+
+# Example usage
+student_scores = {
+    'Alice': [85, 92, 78],
+    'Bob': [70, 88, 90],
+    'Charlie': [95, 100, 100]
+}
+
+result = map_reduce_grade_calculation(student_scores)
+
+print("Average Grades:")
+for student, avg in result.items():
+    print(f"{student}: {avg}")
