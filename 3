@@ -1,0 +1,39 @@
+def map_reduce_matrix_multiplication(A, B):
+    m, n, p = len(A), len(A[0]), len(B[0])
+    
+    # Mapper: Emit partial values with keys (i, k)
+    mapped = []
+    for i in range(m):
+        for j in range(n):
+            for k in range(p):
+                mapped.append(((i, k), A[i][j], 'A', j))
+    for j in range(n):
+        for k in range(p):
+            for i in range(m):
+                mapped.append(((i, k), B[j][k], 'B', j))
+
+    # Shuffle and group by (i, k)
+    from collections import defaultdict
+    grouped = defaultdict(lambda: {'A': {}, 'B': {}})
+    for (i_k, val, label, j) in mapped:
+        grouped[i_k][label][j] = val
+
+    # Reducer: Compute dot product for each (i, k)
+    C = {}
+    for (i, k), matrices in grouped.items():
+        result = sum(matrices['A'].get(j, 0) * matrices['B'].get(j, 0) for j in range(n))
+        C[(i, k)] = result
+
+    return C
+
+# Example usage
+A = [[1, 2], [3, 4]]
+B = [[5, 6], [7, 8]]
+result = map_reduce_matrix_multiplication(A, B)
+
+# Display result in matrix format
+print("Resultant Matrix C:")
+m, p = len(A), len(B[0])
+for i in range(m):
+    row = [result[(i, k)] for k in range(p)]
+    print(row)
