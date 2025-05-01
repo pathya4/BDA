@@ -11,24 +11,36 @@ def map_reduce_grade_calculation(student_scores):
     for student, score in mapped:
         grouped[student].append(score)
 
-    # Reducer: calculate average for each student
+    # Reducer: calculate average and assign grade
     student_grades = {}
     for student, scores in grouped.items():
         avg = sum(scores) / len(scores)
-        student_grades[student] = round(avg, 2)
+
+        # Assign letter grade based on average
+        if avg >= 90:
+            grade = 'A'
+        elif avg >= 80:
+            grade = 'B'
+        elif avg >= 70:
+            grade = 'C'
+        elif avg >= 60:
+            grade = 'D'
+        else:
+            grade = 'F'
+
+        student_grades[student] = (round(avg, 2), grade)
 
     return student_grades
-
 
 # Example usage
 student_scores = {
     'Alice': [85, 92, 78],
     'Bob': [70, 88, 90],
-    'Charlie': [95, 100, 100]
+    'Charlie': [95, 78, 100]
 }
 
 result = map_reduce_grade_calculation(student_scores)
 
-print("Average Grades:")
-for student, avg in result.items():
-    print(f"{student}: {avg}")
+print("Final Grades:")
+for student, (avg, grade) in result.items():
+    print(f"{student}: Average = {avg}, Grade = {grade}")
